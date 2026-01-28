@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Warframe or Weapon?</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #fff;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 600px;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            background: linear-gradient(45deg, #00d9ff, #ff00ea);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .score {
+            text-align: center;
+            font-size: 1.2em;
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-around;
+        }
+
+        .score-item {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .score-label {
+            font-size: 0.8em;
+            opacity: 0.7;
+        }
+
+        .score-value {
+            font-size: 1.5em;
+            font-weight: bold;
+        }
+
+        .game-area {
+            text-align: center;
+            margin: 40px 0;
+        }
+
+        .item-name {
+            font-size: 2em;
+            font-weight: bold;
+            margin-bottom: 40px;
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+        }
+
+        .buttons {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        button {
+            padding: 15px 30px;
+            font-size: 1.1em;
+            font-weight: bold;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            flex: 1;
+            min-width: 140px;
+        }
+
+        .btn-warframe {
+            background: linear-gradient(45deg, #00d9ff, #0099cc);
+            color: white;
+        }
+
+        .btn-weapon {
+            background: linear-gradient(45deg, #ff00ea, #cc0099);
+            color: white;
+        }
+
+        .btn-sentinel {
+            background: linear-gradient(45deg, #00ff88, #00cc66);
+            color: white;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(255, 255, 255, 0.3);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .feedback {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 1.3em;
+            font-weight: bold;
+            min-height: 30px;
+            transition: all 0.3s ease;
+        }
+
+        .feedback.correct {
+            color: #00ff00;
+        }
+
+        .feedback.incorrect {
+            color: #ff0000;
+        }
+
+        .restart-btn {
+            display: none;
+            margin: 30px auto 0;
+            background: linear-gradient(45deg, #ffd700, #ff8c00);
+            padding: 12px 30px;
+        }
+
+        .restart-btn.show {
+            display: block;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px;
+            }
+
+            h1 {
+                font-size: 1.8em;
+            }
+
+            .item-name {
+                font-size: 1.5em;
+            }
+
+            button {
+                padding: 12px 30px;
+                font-size: 1em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Warframe or Weapon?</h1>
+        
+        <div class="score">
+            <div class="score-item">
+                <span class="score-label">Correct</span>
+                <span class="score-value" id="correct">0</span>
+            </div>
+            <div class="score-item">
+                <span class="score-label">Wrong</span>
+                <span class="score-value" id="wrong">0</span>
+            </div>
+            <div class="score-item">
+                <span class="score-label">Streak</span>
+                <span class="score-value" id="streak">0</span>
+            </div>
+        </div>
+
+        <div class="game-area">
+            <div class="item-name" id="itemName">Loading...</div>
+            
+            <div class="buttons">
+                <button class="btn-warframe" onclick="guess('warframe')">Warframe</button>
+                <button class="btn-weapon" onclick="guess('weapon')">Weapon</button>
+                <button class="btn-sentinel" onclick="guess('sentinel')">Sentinel</button>
+            </div>
+        </div>
+
+        <div class="feedback" id="feedback"></div>
+        
+        <button class="restart-btn" id="restartBtn" onclick="restartGame()">Play Again</button>
+    </div>
+
+    <script>
+        // Game data
+        const warframes = [
+            "Excalibur", "Mag", "Volt", "Rhino", "Frost", "Ember", "Trinity", "Ash", 
+            "Loki", "Nyx", "Valkyr", "Banshee", "Saryn", "Vauban", "Nova", "Nekros",
+            "Oberon", "Zephyr", "Hydroid", "Mirage", "Limbo", "Mesa", "Chroma", "Equinox",
+            "Atlas", "Wukong", "Ivara", "Titania", "Nezha", "Inaros", "Octavia", "Gara",
+            "Nidus", "Harrow", "Khora", "Garuda", "Revenant", "Baruuk", "Hildryn", "Wisp",
+            "Gauss", "Grendel", "Protea", "Xaku", "Lavos", "Sevagoth", "Yareli", "Caliban",
+            "Voruna", "Citrine", "Dagath", "Qorvex", "Jade", "Cyte-09"
+        ];
+
+        const weapons = [
+            "Braton", "Lato", "Skana", "Paris", "Kunai", "Boltor", "Latron", "Lex",
+            "Cronus", "Dread", "Despair", "Hate", "Soma", "Tigris", "Galatine", "Orthos",
+            "Atterax", "Lesion", "Ignis", "Amprex", "Opticor", "Rubico", "Vectis", "Lanka",
+            "Nikana", "Venka", "Gram", "Redeemer", "Corinth", "Phantasma", "Fulmin", "Acceltra",
+            "Kuva Bramma", "Kuva Nukor", "Kuva Kohm", "Nataruk", "Laetum", "Phenmor", "Strun",
+            "Hek", "Grakata", "Sybaris", "Zarr", "Hystrix", "Pyrana", "Aklex", "Twin Grakatas",
+            "Zenistar", "Guandao", "Nikana Prime", "Broken War", "War", "Kronen", "Prisma Obex",
+            // Sentinel Weapons
+            "Artax", "Burst Laser", "Deth Machine Rifle", "Laser Rifle", "Stinger", "Sweeper",
+            "Vulklok", "Deconstructor", "Cryotra", "Tazicor", "Verglas", "Helstrum",
+            // Archguns
+            "Imperator", "Velocitus", "Grattler", "Fluctus", "Corvas", "Cyngas", "Phaedra",
+            "Larkspur", "Mausolon", "Morgha", "Kuva Ayanga",
+            // Archmelees
+            "Veritux", "Centaur", "Rathbone", "Knux", "Agkuza", "Prisma Veritux"
+        ];
+
+        const sentinels = [
+            "Carrier", "Dethcube", "Djinn", "Shade", "Taxon", "Wyrm", "Diriga",
+            "Helios", "Oxylus", "Nautilus"
+        ];
+
+        // Game state
+        let gameData = [];
+        let currentItem = null;
+        let score = { correct: 0, wrong: 0, streak: 0 };
+        let usedItems = new Set();
+
+        // Initialize game with weighted probabilities
+        // Warframes: 1/2, Weapons: 1/3, Sentinels: 1/6
+        function initGame() {
+            gameData = [
+                // Warframes (weight: 3x to get 1/2 probability out of 6 total parts)
+                ...warframes.map(name => ({ name, type: 'warframe' })),
+                ...warframes.map(name => ({ name, type: 'warframe' })),
+                ...warframes.map(name => ({ name, type: 'warframe' })),
+                // Weapons (weight: 2x to get 1/3 probability out of 6 total parts)
+                ...weapons.map(name => ({ name, type: 'weapon' })),
+                ...weapons.map(name => ({ name, type: 'weapon' })),
+                // Sentinels (weight: 1x to get 1/6 probability out of 6 total parts)
+                ...sentinels.map(name => ({ name, type: 'sentinel' }))
+            ];
+            shuffleArray(gameData);
+            nextItem();
+        }
+
+        // Shuffle array
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
+
+        // Get next item
+        function nextItem() {
+            const availableItems = gameData.filter(item => !usedItems.has(item.name));
+            
+            if (availableItems.length === 0) {
+                endGame();
+                return;
+            }
+
+            currentItem = availableItems[Math.floor(Math.random() * availableItems.length)];
+            document.getElementById('itemName').textContent = currentItem.name;
+            document.getElementById('feedback').textContent = '';
+            document.getElementById('feedback').className = 'feedback';
+        }
+
+        // Handle guess
+        function guess(playerGuess) {
+            if (!currentItem) return;
+
+            const feedback = document.getElementById('feedback');
+            const correct = playerGuess === currentItem.type;
+
+            if (correct) {
+                score.correct++;
+                score.streak++;
+                feedback.textContent = '✓ Correct!';
+                feedback.className = 'feedback correct';
+            } else {
+                score.wrong++;
+                score.streak = 0;
+                const correctType = currentItem.type.charAt(0).toUpperCase() + currentItem.type.slice(1);
+                feedback.textContent = `✗ Wrong! It's a ${correctType}`;
+                feedback.className = 'feedback incorrect';
+            }
+
+            updateScore();
+            usedItems.add(currentItem.name);
+
+            setTimeout(() => {
+                nextItem();
+            }, 1500);
+        }
+
+        // Update score display
+        function updateScore() {
+            document.getElementById('correct').textContent = score.correct;
+            document.getElementById('wrong').textContent = score.wrong;
+            document.getElementById('streak').textContent = score.streak;
+        }
+
+        // End game
+        function endGame() {
+            document.getElementById('itemName').textContent = 'Game Over!';
+            document.getElementById('feedback').textContent = 
+                `Final Score: ${score.correct} correct out of ${score.correct + score.wrong}`;
+            document.getElementById('feedback').className = 'feedback';
+            document.getElementById('restartBtn').classList.add('show');
+            document.querySelector('.buttons').style.display = 'none';
+        }
+
+        // Restart game
+        function restartGame() {
+            score = { correct: 0, wrong: 0, streak: 0 };
+            usedItems.clear();
+            updateScore();
+            document.getElementById('restartBtn').classList.remove('show');
+            document.querySelector('.buttons').style.display = 'flex';
+            initGame();
+        }
+
+        // Start game on load
+        initGame();
+    </script>
+</body>
+</html>
