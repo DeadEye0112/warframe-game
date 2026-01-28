@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Warframe or Weapon?</title>
+    <title>Warframe, Arme ou Sentinelle ?</title>
     <style>
         * {
             margin: 0;
@@ -20,6 +20,92 @@
             justify-content: center;
             align-items: center;
             padding: 20px;
+            gap: 20px;
+        }
+
+        .main-layout {
+            display: flex;
+            gap: 20px;
+            max-width: 1200px;
+            width: 100%;
+            align-items: flex-start;
+        }
+
+        .history-panel {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            width: 300px;
+            max-height: 600px;
+            overflow-y: auto;
+            flex-shrink: 0;
+        }
+
+        .history-panel h2 {
+            font-size: 1.2em;
+            margin-bottom: 15px;
+            text-align: center;
+            opacity: 0.9;
+        }
+
+        .history-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .history-item {
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 0.9em;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .history-item.correct {
+            border-left: 4px solid #00ff00;
+        }
+
+        .history-item.incorrect {
+            border-left: 4px solid #ff0000;
+        }
+
+        .history-item-name {
+            flex: 1;
+            font-weight: bold;
+        }
+
+        .history-item-guess {
+            font-size: 0.8em;
+            opacity: 0.7;
+            margin-left: 10px;
+        }
+
+        .history-item-icon {
+            font-size: 1.2em;
+            margin-left: 10px;
+        }
+
+        .history-panel::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .history-panel::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+        }
+
+        .history-panel::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+        }
+
+        .history-panel::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.3);
         }
 
         .container {
@@ -157,6 +243,24 @@
             display: block;
         }
 
+        @media (max-width: 900px) {
+            .main-layout {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .history-panel {
+                width: 100%;
+                max-width: 600px;
+                max-height: 300px;
+                order: 2;
+            }
+
+            .container {
+                order: 1;
+            }
+        }
+
         @media (max-width: 600px) {
             .container {
                 padding: 20px;
@@ -178,37 +282,46 @@
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Warframe or Weapon?</h1>
-        
-        <div class="score">
-            <div class="score-item">
-                <span class="score-label">Correct</span>
-                <span class="score-value" id="correct">0</span>
-            </div>
-            <div class="score-item">
-                <span class="score-label">Wrong</span>
-                <span class="score-value" id="wrong">0</span>
-            </div>
-            <div class="score-item">
-                <span class="score-label">Streak</span>
-                <span class="score-value" id="streak">0</span>
+    <div class="main-layout">
+        <div class="history-panel">
+            <h2>Historique des réponses</h2>
+            <div class="history-list" id="historyList">
+                <!-- History items will be added here -->
             </div>
         </div>
 
-        <div class="game-area">
-            <div class="item-name" id="itemName">Loading...</div>
+        <div class="container">
+            <h1>Warframe, Arme ou Sentinelle ?</h1>
             
-            <div class="buttons">
-                <button class="btn-warframe" onclick="guess('warframe')">Warframe</button>
-                <button class="btn-weapon" onclick="guess('weapon')">Weapon</button>
-                <button class="btn-sentinel" onclick="guess('sentinel')">Sentinel</button>
+            <div class="score">
+                <div class="score-item">
+                    <span class="score-label">Correct</span>
+                    <span class="score-value" id="correct">0</span>
+                </div>
+                <div class="score-item">
+                    <span class="score-label">Incorrect</span>
+                    <span class="score-value" id="wrong">0</span>
+                </div>
+                <div class="score-item">
+                    <span class="score-label">Série</span>
+                    <span class="score-value" id="streak">0</span>
+                </div>
             </div>
-        </div>
 
-        <div class="feedback" id="feedback"></div>
-        
-        <button class="restart-btn" id="restartBtn" onclick="restartGame()">Play Again</button>
+            <div class="game-area">
+                <div class="item-name" id="itemName">Chargement...</div>
+                
+                <div class="buttons">
+                    <button class="btn-warframe" onclick="guess('warframe')">Warframe</button>
+                    <button class="btn-weapon" onclick="guess('weapon')">Arme</button>
+                    <button class="btn-sentinel" onclick="guess('sentinel')">Sentinelle</button>
+                </div>
+            </div>
+
+            <div class="feedback" id="feedback"></div>
+            
+            <button class="restart-btn" id="restartBtn" onclick="restartGame()">Rejouer</button>
+        </div>
     </div>
 
     <script>
@@ -251,6 +364,7 @@
         let currentItem = null;
         let score = { correct: 0, wrong: 0, streak: 0 };
         let usedItems = new Set();
+        let history = [];
 
         // Initialize game with weighted probabilities
         // Warframes: 1/2, Weapons: 1/3, Sentinels: 1/6
@@ -300,25 +414,37 @@
             const feedback = document.getElementById('feedback');
             const correct = playerGuess === currentItem.type;
 
+            // Add to history
+            history.unshift({
+                name: currentItem.name,
+                correct: correct,
+                guess: playerGuess,
+                actualType: currentItem.type
+            });
+            updateHistory();
+
             if (correct) {
                 score.correct++;
                 score.streak++;
-                feedback.textContent = '✓ Correct!';
+                feedback.textContent = '✓ Correct !';
                 feedback.className = 'feedback correct';
             } else {
                 score.wrong++;
                 score.streak = 0;
-                const correctType = currentItem.type.charAt(0).toUpperCase() + currentItem.type.slice(1);
-                feedback.textContent = `✗ Wrong! It's a ${correctType}`;
+                const correctType = {
+                    'warframe': 'Warframe',
+                    'weapon': 'Arme',
+                    'sentinel': 'Sentinelle'
+                }[currentItem.type];
+                feedback.textContent = `✗ Faux ! C'est un${currentItem.type === 'weapon' ? 'e' : ''} ${correctType}`;
                 feedback.className = 'feedback incorrect';
             }
 
             updateScore();
             usedItems.add(currentItem.name);
 
-            setTimeout(() => {
-                nextItem();
-            }, 1500);
+            // Change to next item immediately
+            nextItem();
         }
 
         // Update score display
@@ -328,11 +454,46 @@
             document.getElementById('streak').textContent = score.streak;
         }
 
+        // Update history display
+        function updateHistory() {
+            const historyList = document.getElementById('historyList');
+            historyList.innerHTML = '';
+
+            history.forEach(item => {
+                const historyItem = document.createElement('div');
+                historyItem.className = `history-item ${item.correct ? 'correct' : 'incorrect'}`;
+                
+                const nameSpan = document.createElement('span');
+                nameSpan.className = 'history-item-name';
+                nameSpan.textContent = item.name;
+                
+                const guessSpan = document.createElement('span');
+                guessSpan.className = 'history-item-guess';
+                // Translate types to French
+                const frenchTypes = {
+                    'warframe': 'Warframe',
+                    'weapon': 'Arme',
+                    'sentinel': 'Sentinelle'
+                };
+                guessSpan.textContent = frenchTypes[item.actualType];
+                
+                const iconSpan = document.createElement('span');
+                iconSpan.className = 'history-item-icon';
+                iconSpan.textContent = item.correct ? '✓' : '✗';
+                
+                historyItem.appendChild(nameSpan);
+                historyItem.appendChild(guessSpan);
+                historyItem.appendChild(iconSpan);
+                
+                historyList.appendChild(historyItem);
+            });
+        }
+
         // End game
         function endGame() {
-            document.getElementById('itemName').textContent = 'Game Over!';
+            document.getElementById('itemName').textContent = 'Partie terminée !';
             document.getElementById('feedback').textContent = 
-                `Final Score: ${score.correct} correct out of ${score.correct + score.wrong}`;
+                `Score final : ${score.correct} correct sur ${score.correct + score.wrong}`;
             document.getElementById('feedback').className = 'feedback';
             document.getElementById('restartBtn').classList.add('show');
             document.querySelector('.buttons').style.display = 'none';
@@ -342,9 +503,13 @@
         function restartGame() {
             score = { correct: 0, wrong: 0, streak: 0 };
             usedItems.clear();
+            history = [];
             updateScore();
+            updateHistory();
             document.getElementById('restartBtn').classList.remove('show');
             document.querySelector('.buttons').style.display = 'flex';
+            document.getElementById('feedback').textContent = '';
+            document.getElementById('feedback').className = 'feedback';
             initGame();
         }
 
