@@ -1,520 +1,1035 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Warframe, Arme ou Sentinelle ?</title>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Warframe, Arme ou Compagnon ?</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
 
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-            color: #fff;
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-            gap: 20px;
-        }
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+        color: #fff;
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 20px;
+        gap: 20px;
+      }
 
+      .main-layout {
+        display: flex;
+        gap: 20px;
+        max-width: 1200px;
+        width: 100%;
+        align-items: flex-start;
+      }
+
+      .history-panel {
+        background: rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(10px);
+        border-radius: 20px;
+        padding: 20px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        width: 300px;
+        max-height: 600px;
+        overflow-y: auto;
+        flex-shrink: 0;
+      }
+
+      .history-panel h2 {
+        font-size: 1.2em;
+        margin-bottom: 15px;
+        text-align: center;
+        opacity: 0.9;
+      }
+
+      .history-list {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+
+      .history-item {
+        padding: 10px;
+        border-radius: 8px;
+        font-size: 0.9em;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: rgba(255, 255, 255, 0.05);
+      }
+
+      .history-item.correct {
+        border-left: 4px solid #00ff00;
+      }
+
+      .history-item.incorrect {
+        border-left: 4px solid #ff0000;
+      }
+
+      .history-item-name {
+        flex: 1;
+        font-weight: bold;
+      }
+
+      .history-item-guess {
+        font-size: 0.8em;
+        opacity: 0.7;
+        margin-left: 10px;
+      }
+
+      .history-item-icon {
+        font-size: 1.2em;
+        margin-left: 10px;
+      }
+
+      .history-panel::-webkit-scrollbar {
+        width: 8px;
+      }
+
+      .history-panel::-webkit-scrollbar-track {
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 10px;
+      }
+
+      .history-panel::-webkit-scrollbar-thumb {
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 10px;
+      }
+
+      .history-panel::-webkit-scrollbar-thumb:hover {
+        background: rgba(255, 255, 255, 0.3);
+      }
+
+      .container {
+        max-width: 600px;
+        width: 100%;
+        background: rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(10px);
+        border-radius: 20px;
+        padding: 40px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+      }
+
+      h1 {
+        text-align: center;
+        margin-bottom: 30px;
+        font-size: 2.5em;
+        background: linear-gradient(45deg, #00d9ff, #ff00ea);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+
+      .score {
+        text-align: center;
+        font-size: 1.2em;
+        margin-bottom: 30px;
+        display: flex;
+        justify-content: space-around;
+      }
+
+      .score-item {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+      }
+
+      .score-label {
+        font-size: 0.8em;
+        opacity: 0.7;
+      }
+
+      .score-value {
+        font-size: 1.5em;
+        font-weight: bold;
+      }
+
+      .game-area {
+        text-align: center;
+        margin: 40px 0;
+      }
+
+      .item-name {
+        font-size: 2em;
+        font-weight: bold;
+        margin-bottom: 40px;
+        min-height: 60px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 10px;
+      }
+
+      .buttons {
+        display: flex;
+        gap: 20px;
+        justify-content: center;
+        flex-wrap: wrap;
+      }
+
+      button {
+        padding: 15px 30px;
+        font-size: 1.1em;
+        font-weight: bold;
+        border: none;
+        border-radius: 10px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        flex: 1;
+        min-width: 140px;
+      }
+
+      .btn-warframe {
+        background: linear-gradient(45deg, #00d9ff, #0099cc);
+        color: white;
+      }
+
+      .btn-weapon {
+        background: linear-gradient(45deg, #ff00ea, #cc0099);
+        color: white;
+      }
+
+      .btn-sentinel {
+        background: linear-gradient(45deg, #00ff88, #00cc66);
+        color: white;
+      }
+
+      button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 20px rgba(255, 255, 255, 0.3);
+      }
+
+      button:active {
+        transform: translateY(0);
+      }
+
+      .feedback {
+        text-align: center;
+        margin-top: 20px;
+        font-size: 1.3em;
+        font-weight: bold;
+        min-height: 30px;
+        transition: all 0.3s ease;
+      }
+
+      .feedback.correct {
+        color: #00ff00;
+      }
+
+      .feedback.incorrect {
+        color: #ff0000;
+      }
+
+      .restart-btn {
+        display: none;
+        margin: 30px auto 0;
+        background: linear-gradient(45deg, #ffd700, #ff8c00);
+        padding: 12px 30px;
+      }
+
+      .restart-btn.show {
+        display: block;
+      }
+
+      @media (max-width: 900px) {
         .main-layout {
-            display: flex;
-            gap: 20px;
-            max-width: 1200px;
-            width: 100%;
-            align-items: flex-start;
+          flex-direction: column;
+          align-items: center;
         }
 
         .history-panel {
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
-            padding: 20px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-            width: 300px;
-            max-height: 600px;
-            overflow-y: auto;
-            flex-shrink: 0;
-        }
-
-        .history-panel h2 {
-            font-size: 1.2em;
-            margin-bottom: 15px;
-            text-align: center;
-            opacity: 0.9;
-        }
-
-        .history-list {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-
-        .history-item {
-            padding: 10px;
-            border-radius: 8px;
-            font-size: 0.9em;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: rgba(255, 255, 255, 0.05);
-        }
-
-        .history-item.correct {
-            border-left: 4px solid #00ff00;
-        }
-
-        .history-item.incorrect {
-            border-left: 4px solid #ff0000;
-        }
-
-        .history-item-name {
-            flex: 1;
-            font-weight: bold;
-        }
-
-        .history-item-guess {
-            font-size: 0.8em;
-            opacity: 0.7;
-            margin-left: 10px;
-        }
-
-        .history-item-icon {
-            font-size: 1.2em;
-            margin-left: 10px;
-        }
-
-        .history-panel::-webkit-scrollbar {
-            width: 8px;
-        }
-
-        .history-panel::-webkit-scrollbar-track {
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 10px;
-        }
-
-        .history-panel::-webkit-scrollbar-thumb {
-            background: rgba(255, 255, 255, 0.2);
-            border-radius: 10px;
-        }
-
-        .history-panel::-webkit-scrollbar-thumb:hover {
-            background: rgba(255, 255, 255, 0.3);
+          width: 100%;
+          max-width: 600px;
+          max-height: 300px;
+          order: 2;
         }
 
         .container {
-            max-width: 600px;
-            width: 100%;
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
-            padding: 40px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+          order: 1;
+        }
+      }
+
+      @media (max-width: 600px) {
+        .container {
+          padding: 20px;
         }
 
         h1 {
-            text-align: center;
-            margin-bottom: 30px;
-            font-size: 2.5em;
-            background: linear-gradient(45deg, #00d9ff, #ff00ea);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .score {
-            text-align: center;
-            font-size: 1.2em;
-            margin-bottom: 30px;
-            display: flex;
-            justify-content: space-around;
-        }
-
-        .score-item {
-            display: flex;
-            flex-direction: column;
-            gap: 5px;
-        }
-
-        .score-label {
-            font-size: 0.8em;
-            opacity: 0.7;
-        }
-
-        .score-value {
-            font-size: 1.5em;
-            font-weight: bold;
-        }
-
-        .game-area {
-            text-align: center;
-            margin: 40px 0;
+          font-size: 1.8em;
         }
 
         .item-name {
-            font-size: 2em;
-            font-weight: bold;
-            margin-bottom: 40px;
-            min-height: 60px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 10px;
-        }
-
-        .buttons {
-            display: flex;
-            gap: 20px;
-            justify-content: center;
-            flex-wrap: wrap;
+          font-size: 1.5em;
         }
 
         button {
-            padding: 15px 30px;
-            font-size: 1.1em;
-            font-weight: bold;
-            border: none;
-            border-radius: 10px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            flex: 1;
-            min-width: 140px;
+          padding: 12px 30px;
+          font-size: 1em;
         }
-
-        .btn-warframe {
-            background: linear-gradient(45deg, #00d9ff, #0099cc);
-            color: white;
-        }
-
-        .btn-weapon {
-            background: linear-gradient(45deg, #ff00ea, #cc0099);
-            color: white;
-        }
-
-        .btn-sentinel {
-            background: linear-gradient(45deg, #00ff88, #00cc66);
-            color: white;
-        }
-
-        button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 20px rgba(255, 255, 255, 0.3);
-        }
-
-        button:active {
-            transform: translateY(0);
-        }
-
-        .feedback {
-            text-align: center;
-            margin-top: 20px;
-            font-size: 1.3em;
-            font-weight: bold;
-            min-height: 30px;
-            transition: all 0.3s ease;
-        }
-
-        .feedback.correct {
-            color: #00ff00;
-        }
-
-        .feedback.incorrect {
-            color: #ff0000;
-        }
-
-        .restart-btn {
-            display: none;
-            margin: 30px auto 0;
-            background: linear-gradient(45deg, #ffd700, #ff8c00);
-            padding: 12px 30px;
-        }
-
-        .restart-btn.show {
-            display: block;
-        }
-
-        @media (max-width: 900px) {
-            .main-layout {
-                flex-direction: column;
-                align-items: center;
-            }
-
-            .history-panel {
-                width: 100%;
-                max-width: 600px;
-                max-height: 300px;
-                order: 2;
-            }
-
-            .container {
-                order: 1;
-            }
-        }
-
-        @media (max-width: 600px) {
-            .container {
-                padding: 20px;
-            }
-
-            h1 {
-                font-size: 1.8em;
-            }
-
-            .item-name {
-                font-size: 1.5em;
-            }
-
-            button {
-                padding: 12px 30px;
-                font-size: 1em;
-            }
-        }
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <div class="main-layout">
-        <div class="history-panel">
-            <h2>Historique des réponses</h2>
-            <div class="history-list" id="historyList">
-                <!-- History items will be added here -->
-            </div>
+      <div class="history-panel">
+        <h2>Historique des réponses</h2>
+        <div class="history-list" id="historyList">
+          <!-- History items will be added here -->
+        </div>
+      </div>
+
+      <div class="container">
+        <h1>Warframe, Arme ou Compagnon ?</h1>
+
+        <div class="score">
+          <div class="score-item">
+            <span class="score-label">Correct</span>
+            <span class="score-value" id="correct">0</span>
+          </div>
+          <div class="score-item">
+            <span class="score-label">Incorrect</span>
+            <span class="score-value" id="wrong">0</span>
+          </div>
+          <div class="score-item">
+            <span class="score-label">Série</span>
+            <span class="score-value" id="streak">0</span>
+          </div>
         </div>
 
-        <div class="container">
-            <h1>Warframe, Arme ou Sentinelle ?</h1>
-            
-            <div class="score">
-                <div class="score-item">
-                    <span class="score-label">Correct</span>
-                    <span class="score-value" id="correct">0</span>
-                </div>
-                <div class="score-item">
-                    <span class="score-label">Incorrect</span>
-                    <span class="score-value" id="wrong">0</span>
-                </div>
-                <div class="score-item">
-                    <span class="score-label">Série</span>
-                    <span class="score-value" id="streak">0</span>
-                </div>
-            </div>
+        <div class="game-area">
+          <div class="item-name" id="itemName">Chargement...</div>
 
-            <div class="game-area">
-                <div class="item-name" id="itemName">Chargement...</div>
-                
-                <div class="buttons">
-                    <button class="btn-warframe" onclick="guess('warframe')">Warframe</button>
-                    <button class="btn-weapon" onclick="guess('weapon')">Arme</button>
-                    <button class="btn-sentinel" onclick="guess('sentinel')">Sentinelle</button>
-                </div>
-            </div>
-
-            <div class="feedback" id="feedback"></div>
-            
-            <button class="restart-btn" id="restartBtn" onclick="restartGame()">Rejouer</button>
+          <div class="buttons">
+            <button class="btn-warframe" onclick="guess('warframe')">
+              Warframe
+            </button>
+            <button class="btn-weapon" onclick="guess('weapon')">Arme</button>
+            <button class="btn-sentinel" onclick="guess('sentinel')">
+              Compagnon
+            </button>
+          </div>
         </div>
+
+        <div class="feedback" id="feedback"></div>
+
+        <button class="restart-btn" id="restartBtn" onclick="restartGame()">
+          Rejouer
+        </button>
+      </div>
     </div>
 
     <script>
-        // Game data
-        const warframes = [
-            "Excalibur", "Mag", "Volt", "Rhino", "Frost", "Ember", "Trinity", "Ash", 
-            "Loki", "Nyx", "Valkyr", "Banshee", "Saryn", "Vauban", "Nova", "Nekros",
-            "Oberon", "Zephyr", "Hydroid", "Mirage", "Limbo", "Mesa", "Chroma", "Equinox",
-            "Atlas", "Wukong", "Ivara", "Titania", "Nezha", "Inaros", "Octavia", "Gara",
-            "Nidus", "Harrow", "Khora", "Garuda", "Revenant", "Baruuk", "Hildryn", "Wisp",
-            "Gauss", "Grendel", "Protea", "Xaku", "Lavos", "Sevagoth", "Yareli", "Caliban",
-            "Voruna", "Citrine", "Dagath", "Qorvex", "Jade", "Cyte-09"
+      // Game data
+      const warframes = [
+        "Zephyr",
+        "Gauss",
+        "Limbo",
+        "Atlas",
+        "Hydroid",
+        "Chroma",
+        "Excalibur",
+        "Titania",
+        "Hildryn",
+        "Equinox",
+        "Qorvex",
+        "Cyte-09",
+        "Frost",
+        "Trinity",
+        "Caliban",
+        "Valkyr",
+        "Gyre",
+        "Dagath",
+        "Wukong",
+        "Banshee",
+        "Harrow",
+        "Khora",
+        "Dante",
+        "Citrine",
+        "Wisp",
+        "Voruna",
+        "Ember",
+        "Saryn",
+        "Revenant",
+        "Ivara",
+        "Inaros",
+        "Volt",
+        "Gara",
+        "Nekros",
+        "Loki",
+        "Vauban",
+        "Baruuk",
+        "Garuda",
+        "Xaku",
+        "Nova",
+        "Nezha",
+        "Nyx",
+        "Sevagoth",
+        "Protea",
+        "Excalibur Umbra",
+        "Styanax",
+        "Grendel",
+        "Rhino",
+        "Octavia",
+        "Oberon",
+        "Nidus",
+        "Mirage",
+        "Mesa",
+        "Mag",
+        "Lavos",
+        "Koumei",
+        "Jade",
+        "Ash",
+        "Yareli",
+        "Kullervo",
+      ];
+
+      const weapons = [
+        "Acceltra",
+        "Acceltra Prime",
+        "Ack & Brunt",
+        "Aeolak",
+        "Afentis",
+        "Alternox",
+        "Amanata",
+        "Ambassador",
+        "Amphis",
+        "Amprex",
+        "Anku",
+        "Ankyros",
+        "Ankyros Prime",
+        "Arca Plasmor",
+        "Arca Titron",
+        "Argo & Vel",
+        "Argonak",
+        "Artemis Bow",
+        "Artemis Bow Prime",
+        "Arum Spinosa",
+        "Astilla",
+        "Astilla Prime",
+        "Atterax",
+        "Attica",
+        "AX-52",
+        "Azothane",
+        "Basmu",
+        "Battacor",
+        "Baza",
+        "Baza Prime",
+        "Bo",
+        "Bo Prime",
+        "Boar",
+        "Boar Prime",
+        "Boltace",
+        "Boltor",
+        "Boltor Prime",
+        "Braton",
+        "Braton Prime",
+        "Braton Vandal",
+        "Broken Scepter",
+        "Broken War",
+        "Bubonico",
+        "Burston",
+        "Burston Prime",
+        "Buzlok",
+        "Cadus",
+        "Carmine Penta",
+        "Cassowar",
+        "Caustacyst",
+        "Cedo",
+        "Ceramic Dagger",
+        "Cerata",
+        "Cernos",
+        "Cernos Prime",
+        "Ceti Lacera",
+        "Cinta",
+        "Cobra & Crane",
+        "Cobra & Crane Prime",
+        "Convectrix",
+        "Corinth",
+        "Corinth Prime",
+        "Corufell",
+        "Cronus",
+        "Daikyu",
+        "Dakra Prime",
+        "Dark Dagger",
+        "Dark Split-Sword (Dual Swords)",
+        "Dark Split-Sword (Heavy Blade)",
+        "Dark Sword",
+        "Dera",
+        "Dera Vandal",
+        "Desert Wind",
+        "Desert Wind Prime",
+        "Destreza",
+        "Destreza Prime",
+        "Dex Dakra",
+        "Dex Nikana",
+        "Dex Sybaris",
+        "Diwata",
+        "Diwata Prime",
+        "Dorrclave",
+        "Dragon Nikana",
+        "Drakgoon",
+        "Dread",
+        "Dual Cleavers",
+        "Dual Ether",
+        "Dual Heat Swords",
+        "Dual Ichor",
+        "Dual Kamas",
+        "Dual Kamas Prime",
+        "Dual Keres",
+        "Dual Keres Prime",
+        "Dual Raza",
+        "Dual Skana",
+        "Dual Zoren",
+        "Edun",
+        "EFV-0 Somnus",
+        "Ekhein",
+        "Endura",
+        "Ether Daggers",
+        "Ether Reaper",
+        "Ether Sword",
+        "Evensong",
+        "Exalted Blade",
+        "Exalted Prime Blade",
+        "Exalted Umbra Blade",
+        "Exergis",
+        "Falcor",
+        "Fang",
+        "Fang Prime",
+        "Felarx",
+        "Ferrox",
+        "Flux Rifle",
+        "Fragor",
+        "Fragor Prime",
+        "Fulmin",
+        "Fulmin Prime",
+        "Furax",
+        "Furax Wraith",
+        "Galatine",
+        "Galatine Prime",
+        "Galvacord",
+        "Garuda Prime Talons",
+        "Garuda Talons",
+        "Gazal Machete",
+        "Ghoulsaw",
+        "Glaive",
+        "Glaive Prime",
+        "Glaxion",
+        "Glaxion Vandal",
+        "Gorgon",
+        "Gorgon Wraith",
+        "Gotva Prime",
+        "Grakata",
+        "Gram",
+        "Gram Prime",
+        "Grinlok",
+        "Guandao",
+        "Guandao Prime",
+        "Gunsen",
+        "Gunsen Prime",
+        "Halikar",
+        "Halikar Wraith",
+        "Harmony",
+        "Harpak",
+        "Hate",
+        "Heat Dagger",
+        "Heat Sword",
+        "Hek",
+        "Heliocor",
+        "Hema",
+        "Hespar",
+        "Higasa",
+        "Hind",
+        "Hirudo",
+        "Ignis",
+        "Ignis Wraith",
+        "Innodem",
+        "Iron Staff",
+        "Iron Staff Prime",
+        "Jat Kittag",
+        "Jat Kusar",
+        "Javlok",
+        "Jaw Sword",
+        "Kama",
+        "Karak",
+        "Karak Wraith",
+        "Karyst",
+        "Karyst Prime",
+        "Keles",
+        "Keratinos",
+        "Kesheg",
+        "Kestrel",
+        "Kogake",
+        "Kogake Prime",
+        "Kohm",
+        "Komorex",
+        "Korrudo",
+        "Korumm",
+        "Kreska",
+        "Krohkur",
+        "Kronen",
+        "Kronen Prime",
+        "Kuva Bramma",
+        "Kuva Chakkhurr",
+        "Kuva Drakgoon",
+        "Kuva Hek",
+        "Kuva Hind",
+        "Kuva Karak",
+        "Kuva Keles",
+        "Kuva Kohm",
+        "Kuva Ogris",
+        "Kuva Quartakk",
+        "Kuva Shildeg",
+        "Kuva Sobek",
+        "Kuva Tonkor",
+        "Kuva Zarr",
+        "Lacera",
+        "Lanka",
+        "Latron",
+        "Latron Prime",
+        "Latron Wraith",
+        "Lecta",
+        "Lenz",
+        "Lesion",
+        "Machete",
+        "Machete Wraith",
+        "Magistar",
+        "Masseter",
+        "Masseter Prime",
+        "Mios",
+        "Mire",
+        "Miter",
+        "MK1-Bo",
+        "MK1-Braton",
+        "MK1-Furax",
+        "MK1-Paris",
+        "MK1-Strun",
+        "Mutalist Cernos",
+        "Mutalist Quanta",
+        "Nagantaka",
+        "Nagantaka Prime",
+        "Nami Skyla",
+        "Nami Skyla Prime",
+        "Nami Solo",
+        "Nataruk",
+        "Nepheri",
+        "Neutralizer",
+        "Nikana",
+        "Nikana Prime",
+        "Ninkondi",
+        "Ninkondi Prime",
+        "Obex",
+        "Ogris",
+        "Ohma",
+        "Okina",
+        "Okina Prime",
+        "Opticor",
+        "Opticor Vandal",
+        "Orthos",
+        "Orthos Prime",
+        "Orvius",
+        "Pangolin Prime",
+        "Pangolin Sword",
+        "Panthera",
+        "Panthera Prime",
+        "Paracesis",
+        "Paracyst",
+        "Paris",
+        "Paris Prime",
+        "Pathocyst",
+        "Pennant",
+        "Penta",
+        "Perigale",
+        "Phage",
+        "Phantasma",
+        "Phantasma Prime",
+        "Phenmor",
+        "Plasma Sword",
+        "Praedos",
+        "Prisma Dual Cleavers",
+        "Prisma Gorgon",
+        "Prisma Grakata",
+        "Prisma Grinlok",
+        "Prisma Lenz",
+        "Prisma Machete",
+        "Prisma Obex",
+        "Prisma Ohma",
+        "Prisma Skana",
+        "Prisma Tetra",
+        "Proboscis Cernos",
+        "Prova",
+        "Prova Vandal",
+        "Pulmonars",
+        "Pupacyst",
+        "Quanta",
+        "Quanta Vandal",
+        "Quartakk",
+        "Quassus",
+        "Quassus Prime",
+        "Quellor",
+        "Rakta Cernos",
+        "Rakta Dark Dagger",
+        "Rauta",
+        "Reaper Prime",
+        "Reconifex",
+        "Redeemer",
+        "Redeemer Prime",
+        "Ripkas",
+        "Rubico",
+        "Rubico Prime",
+        "Rumblejack",
+        "Ruvox",
+        "Sampotes",
+        "Sancti Magistar",
+        "Sancti Tigris",
+        "Sarofang",
+        "Sarpa",
+        "Scindo",
+        "Scindo Prime",
+        "Scoliac",
+        "Scourge",
+        "Scourge Prime",
+        "Secura Lecta",
+        "Secura Penta",
+        "Serro",
+        "Shadow Claws",
+        "Shadow Claws Prime",
+        "Shaku",
+        "Shedu",
+        "Sheev",
+        "Sibear",
+        "Sigma & Octantis",
+        "Silva & Aegis",
+        "Silva & Aegis Prime",
+        "Simulor",
+        "Skana",
+        "Skana Prime",
+        "Skiajati",
+        "Slaytra",
+        "Snipetron",
+        "Snipetron Vandal",
+        "Sobek",
+        "Soma",
+        "Soma Prime",
+        "Sporothrix",
+        "Stahlta",
+        "Steflos",
+        "Stradavar",
+        "Stradavar Prime",
+        "Stropha",
+        "Strun",
+        "Strun Prime",
+        "Strun Wraith",
+        "Sun & Moon",
+        "Supra",
+        "Supra Vandal",
+        "Syam",
+        "Sybaris",
+        "Sybaris Prime",
+        "Sydon",
+        "Synapse",
+        "Synoid Heliocor",
+        "Synoid Simulor",
+        "Tatsu",
+        "Tatsu Prime",
+        "Tekko",
+        "Tekko Prime",
+        "Telos Boltace",
+        "Telos Boltor",
+        "Tenet Agendus",
+        "Tenet Arca Plasmor",
+        "Tenet Envoy",
+        "Tenet Exec",
+        "Tenet Ferrox",
+        "Tenet Flux Rifle",
+        "Tenet Glaxion",
+        "Tenet Grigori",
+        "Tenet Livia",
+        "Tenet Tetra",
+        "Tenora",
+        "Tenora Prime",
+        "Tetra",
+        "Tiberon",
+        "Tiberon Prime",
+        "Tigris",
+        "Tigris Prime",
+        "Tipedo",
+        "Tipedo Prime",
+        "Tonbo",
+        "Tonkor",
+        "Torid",
+        "Trumna",
+        "Trumna Prime",
+        "Twin Basolk",
+        "Twin Krohkur",
+        "Valkyr Prime Talons",
+        "Valkyr Talons",
+        "Vastilok",
+        "Vaykor Hek",
+        "Vaykor Sydon",
+        "Vectis",
+        "Vectis Prime",
+        "Veldt",
+        "Venato",
+        "Venka",
+        "Venka Prime",
+        "Verdilac",
+        "Vericres",
+        "Vitrica",
+        "Volnus",
+        "Volnus Prime",
+        "Vulkar",
+        "Vulkar Wraith",
+        "War",
+        "Wolf Sledge",
+        "Xoris",
+        "Zarr",
+        "Zenistar",
+        "Zenith",
+        "Zhuge",
+        "Zhuge Prime",
+        // Sentinel Weapons
+        "Artax",
+        "Burst Laser",
+        "Deth Machine Rifle",
+        "Laser Rifle",
+        "Stinger",
+        "Sweeper",
+        "Vulklok",
+        "Deconstructor",
+        "Cryotra",
+        "Tazicor",
+        "Verglas",
+        "Helstrum",
+        // Archguns
+        "Imperator",
+        "Velocitus",
+        "Grattler",
+        "Fluctus",
+        "Corvas",
+        "Cyngas",
+        "Phaedra",
+        "Larkspur",
+        "Mausolon",
+        "Morgha",
+        "Kuva Ayanga",
+        "Arquebex",
+        "Ironbride",
+        // Archmelees
+        "Kaszas",
+        "Centaur",
+        "Rathbone",
+        "Knux",
+        "Onorix",
+        "Agkuza",
+        "Veritux Prisma",
+        "Veritux",
+      ];
+
+      const sentinels = [
+        "Huras",
+        "Raksa",
+        "Sahasa",
+        "Sunika",
+        "Chesa",
+        "Carrier",
+        "Dethcube",
+        "Diriga",
+        "Djinn",
+        "Helios",
+        "Nautilus",
+        "Shade",
+        "Oxylus",
+        "Wyrm",
+        "Smeeta",
+        "Adarza",
+        "Vasca",
+        "Vizir",
+        "Medjaÿ ",
+        "Pharaon",
+        "Nocturne",
+        "Panzer",
+        "Rusé",
+        "Bhaira",
+        "Dorma",
+        "Hec",
+      ];
+
+      // Game state
+      let gameData = [];
+      let currentItem = null;
+      let score = { correct: 0, wrong: 0, streak: 0 };
+      let usedItems = new Set();
+      let history = [];
+
+      // Initialize game with weighted probabilities
+      // Warframes: 1/2, Weapons: 1/3, Sentinels: 1/6
+      function initGame() {
+        gameData = [
+          // Warframes (weight: 3x to get 1/2 probability out of 6 total parts)
+          ...warframes.map((name) => ({ name, type: "warframe" })),
+          ...warframes.map((name) => ({ name, type: "warframe" })),
+          ...warframes.map((name) => ({ name, type: "warframe" })),
+          // Weapons (weight: 2x to get 1/3 probability out of 6 total parts)
+          ...weapons.map((name) => ({ name, type: "weapon" })),
+          ...weapons.map((name) => ({ name, type: "weapon" })),
+          // Sentinels (weight: 1x to get 1/6 probability out of 6 total parts)
+          ...sentinels.map((name) => ({ name, type: "sentinel" })),
         ];
+        shuffleArray(gameData);
+        nextItem();
+      }
 
-        const weapons = [
-            "Braton", "Lato", "Skana", "Paris", "Kunai", "Boltor", "Latron", "Lex",
-            "Cronus", "Dread", "Despair", "Hate", "Soma", "Tigris", "Galatine", "Orthos",
-            "Atterax", "Lesion", "Ignis", "Amprex", "Opticor", "Rubico", "Vectis", "Lanka",
-            "Nikana", "Venka", "Gram", "Redeemer", "Corinth", "Phantasma", "Fulmin", "Acceltra",
-            "Kuva Bramma", "Kuva Nukor", "Kuva Kohm", "Nataruk", "Laetum", "Phenmor", "Strun",
-            "Hek", "Grakata", "Sybaris", "Zarr", "Hystrix", "Pyrana", "Aklex", "Twin Grakatas",
-            "Zenistar", "Guandao", "Nikana Prime", "Broken War", "War", "Kronen", "Prisma Obex",
-            // Sentinel Weapons
-            "Artax", "Burst Laser", "Deth Machine Rifle", "Laser Rifle", "Stinger", "Sweeper",
-            "Vulklok", "Deconstructor", "Cryotra", "Tazicor", "Verglas", "Helstrum",
-            // Archguns
-            "Imperator", "Velocitus", "Grattler", "Fluctus", "Corvas", "Cyngas", "Phaedra",
-            "Larkspur", "Mausolon", "Morgha", "Kuva Ayanga",
-            // Archmelees
-            "Veritux", "Centaur", "Rathbone", "Knux", "Agkuza", "Prisma Veritux"
-        ];
+      // Shuffle array
+      function shuffleArray(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [array[i], array[j]] = [array[j], array[i]];
+        }
+      }
 
-        const sentinels = [
-            "Carrier", "Dethcube", "Djinn", "Shade", "Taxon", "Wyrm", "Diriga",
-            "Helios", "Oxylus", "Nautilus"
-        ];
+      // Get next item
+      function nextItem() {
+        const availableItems = gameData.filter(
+          (item) => !usedItems.has(item.name)
+        );
 
-        // Game state
-        let gameData = [];
-        let currentItem = null;
-        let score = { correct: 0, wrong: 0, streak: 0 };
-        let usedItems = new Set();
-        let history = [];
-
-        // Initialize game with weighted probabilities
-        // Warframes: 1/2, Weapons: 1/3, Sentinels: 1/6
-        function initGame() {
-            gameData = [
-                // Warframes (weight: 3x to get 1/2 probability out of 6 total parts)
-                ...warframes.map(name => ({ name, type: 'warframe' })),
-                ...warframes.map(name => ({ name, type: 'warframe' })),
-                ...warframes.map(name => ({ name, type: 'warframe' })),
-                // Weapons (weight: 2x to get 1/3 probability out of 6 total parts)
-                ...weapons.map(name => ({ name, type: 'weapon' })),
-                ...weapons.map(name => ({ name, type: 'weapon' })),
-                // Sentinels (weight: 1x to get 1/6 probability out of 6 total parts)
-                ...sentinels.map(name => ({ name, type: 'sentinel' }))
-            ];
-            shuffleArray(gameData);
-            nextItem();
+        if (availableItems.length === 0) {
+          endGame();
+          return;
         }
 
-        // Shuffle array
-        function shuffleArray(array) {
-            for (let i = array.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [array[i], array[j]] = [array[j], array[i]];
-            }
+        currentItem =
+          availableItems[Math.floor(Math.random() * availableItems.length)];
+        document.getElementById("itemName").textContent = currentItem.name;
+        document.getElementById("feedback").textContent = "";
+        document.getElementById("feedback").className = "feedback";
+      }
+
+      // Handle guess
+      function guess(playerGuess) {
+        if (!currentItem) return;
+
+        const feedback = document.getElementById("feedback");
+        const correct = playerGuess === currentItem.type;
+
+        // Add to history
+        history.unshift({
+          name: currentItem.name,
+          correct: correct,
+          guess: playerGuess,
+          actualType: currentItem.type,
+        });
+        updateHistory();
+
+        if (correct) {
+          score.correct++;
+          score.streak++;
+          feedback.textContent = "✓ Correct !";
+          feedback.className = "feedback correct";
+        } else {
+          score.wrong++;
+          score.streak = 0;
+          const correctType = {
+            warframe: "Warframe",
+            weapon: "Arme",
+            sentinel: "Compagnon",
+          }[currentItem.type];
+          feedback.textContent = `✗ Faux ! C'est un${
+            currentItem.type === "weapon" ? "e" : ""
+          } ${correctType}`;
+          feedback.className = "feedback incorrect";
         }
 
-        // Get next item
-        function nextItem() {
-            const availableItems = gameData.filter(item => !usedItems.has(item.name));
-            
-            if (availableItems.length === 0) {
-                endGame();
-                return;
-            }
+        updateScore();
+        usedItems.add(currentItem.name);
 
-            currentItem = availableItems[Math.floor(Math.random() * availableItems.length)];
-            document.getElementById('itemName').textContent = currentItem.name;
-            document.getElementById('feedback').textContent = '';
-            document.getElementById('feedback').className = 'feedback';
-        }
+        // Change to next item immediately
+        nextItem();
+      }
 
-        // Handle guess
-        function guess(playerGuess) {
-            if (!currentItem) return;
+      // Update score display
+      function updateScore() {
+        document.getElementById("correct").textContent = score.correct;
+        document.getElementById("wrong").textContent = score.wrong;
+        document.getElementById("streak").textContent = score.streak;
+      }
 
-            const feedback = document.getElementById('feedback');
-            const correct = playerGuess === currentItem.type;
+      // Update history display
+      function updateHistory() {
+        const historyList = document.getElementById("historyList");
+        historyList.innerHTML = "";
 
-            // Add to history
-            history.unshift({
-                name: currentItem.name,
-                correct: correct,
-                guess: playerGuess,
-                actualType: currentItem.type
-            });
-            updateHistory();
+        history.forEach((item) => {
+          const historyItem = document.createElement("div");
+          historyItem.className = `history-item ${
+            item.correct ? "correct" : "incorrect"
+          }`;
 
-            if (correct) {
-                score.correct++;
-                score.streak++;
-                feedback.textContent = '✓ Correct !';
-                feedback.className = 'feedback correct';
-            } else {
-                score.wrong++;
-                score.streak = 0;
-                const correctType = {
-                    'warframe': 'Warframe',
-                    'weapon': 'Arme',
-                    'sentinel': 'Sentinelle'
-                }[currentItem.type];
-                feedback.textContent = `✗ Faux ! C'est un${currentItem.type === 'weapon' ? 'e' : ''} ${correctType}`;
-                feedback.className = 'feedback incorrect';
-            }
+          const nameSpan = document.createElement("span");
+          nameSpan.className = "history-item-name";
+          nameSpan.textContent = item.name;
 
-            updateScore();
-            usedItems.add(currentItem.name);
+          const guessSpan = document.createElement("span");
+          guessSpan.className = "history-item-guess";
+          // Translate types to French
+          const frenchTypes = {
+            warframe: "Warframe",
+            weapon: "Arme",
+            sentinel: "Compagnon",
+          };
+          guessSpan.textContent = frenchTypes[item.actualType];
 
-            // Change to next item immediately
-            nextItem();
-        }
+          const iconSpan = document.createElement("span");
+          iconSpan.className = "history-item-icon";
+          iconSpan.textContent = item.correct ? "✓" : "✗";
 
-        // Update score display
-        function updateScore() {
-            document.getElementById('correct').textContent = score.correct;
-            document.getElementById('wrong').textContent = score.wrong;
-            document.getElementById('streak').textContent = score.streak;
-        }
+          historyItem.appendChild(nameSpan);
+          historyItem.appendChild(guessSpan);
+          historyItem.appendChild(iconSpan);
 
-        // Update history display
-        function updateHistory() {
-            const historyList = document.getElementById('historyList');
-            historyList.innerHTML = '';
+          historyList.appendChild(historyItem);
+        });
+      }
 
-            history.forEach(item => {
-                const historyItem = document.createElement('div');
-                historyItem.className = `history-item ${item.correct ? 'correct' : 'incorrect'}`;
-                
-                const nameSpan = document.createElement('span');
-                nameSpan.className = 'history-item-name';
-                nameSpan.textContent = item.name;
-                
-                const guessSpan = document.createElement('span');
-                guessSpan.className = 'history-item-guess';
-                // Translate types to French
-                const frenchTypes = {
-                    'warframe': 'Warframe',
-                    'weapon': 'Arme',
-                    'sentinel': 'Sentinelle'
-                };
-                guessSpan.textContent = frenchTypes[item.actualType];
-                
-                const iconSpan = document.createElement('span');
-                iconSpan.className = 'history-item-icon';
-                iconSpan.textContent = item.correct ? '✓' : '✗';
-                
-                historyItem.appendChild(nameSpan);
-                historyItem.appendChild(guessSpan);
-                historyItem.appendChild(iconSpan);
-                
-                historyList.appendChild(historyItem);
-            });
-        }
+      // End game
+      function endGame() {
+        document.getElementById("itemName").textContent = "Partie terminée !";
+        document.getElementById("feedback").textContent = `Score final : ${
+          score.correct
+        } correct sur ${score.correct + score.wrong}`;
+        document.getElementById("feedback").className = "feedback";
+        document.getElementById("restartBtn").classList.add("show");
+        document.querySelector(".buttons").style.display = "none";
+      }
 
-        // End game
-        function endGame() {
-            document.getElementById('itemName').textContent = 'Partie terminée !';
-            document.getElementById('feedback').textContent = 
-                `Score final : ${score.correct} correct sur ${score.correct + score.wrong}`;
-            document.getElementById('feedback').className = 'feedback';
-            document.getElementById('restartBtn').classList.add('show');
-            document.querySelector('.buttons').style.display = 'none';
-        }
-
-        // Restart game
-        function restartGame() {
-            score = { correct: 0, wrong: 0, streak: 0 };
-            usedItems.clear();
-            history = [];
-            updateScore();
-            updateHistory();
-            document.getElementById('restartBtn').classList.remove('show');
-            document.querySelector('.buttons').style.display = 'flex';
-            document.getElementById('feedback').textContent = '';
-            document.getElementById('feedback').className = 'feedback';
-            initGame();
-        }
-
-        // Start game on load
+      // Restart game
+      function restartGame() {
+        score = { correct: 0, wrong: 0, streak: 0 };
+        usedItems.clear();
+        history = [];
+        updateScore();
+        updateHistory();
+        document.getElementById("restartBtn").classList.remove("show");
+        document.querySelector(".buttons").style.display = "flex";
+        document.getElementById("feedback").textContent = "";
+        document.getElementById("feedback").className = "feedback";
         initGame();
+      }
+
+      // Start game on load
+      initGame();
     </script>
-</body>
+  </body>
 </html>
