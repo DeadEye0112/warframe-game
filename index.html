@@ -877,14 +877,21 @@
       // Warframes: 1/2, Weapons: 1/3, Sentinels: 1/6
       function initGame() {
         gameData = [
-          // Warframes (weight: 3x to get 1/2 probability out of 6 total parts)
           ...warframes.map((name) => ({ name, type: "warframe" })),
           ...warframes.map((name) => ({ name, type: "warframe" })),
           ...warframes.map((name) => ({ name, type: "warframe" })),
-          // Weapons (weight: 2x to get 1/3 probability out of 6 total parts)
+          ...warframes.map((name) => ({ name, type: "warframe" })),
+          ...warframes.map((name) => ({ name, type: "warframe" })),
+          ...warframes.map((name) => ({ name, type: "warframe" })),
           ...weapons.map((name) => ({ name, type: "weapon" })),
-          ...weapons.map((name) => ({ name, type: "weapon" })),
-          // Sentinels (weight: 1x to get 1/6 probability out of 6 total parts)
+          ...sentinels.map((name) => ({ name, type: "sentinel" })),
+          ...sentinels.map((name) => ({ name, type: "sentinel" })),
+          ...sentinels.map((name) => ({ name, type: "sentinel" })),
+          ...sentinels.map((name) => ({ name, type: "sentinel" })),
+          ...sentinels.map((name) => ({ name, type: "sentinel" })),
+          ...sentinels.map((name) => ({ name, type: "sentinel" })),
+          ...sentinels.map((name) => ({ name, type: "sentinel" })),
+          ...sentinels.map((name) => ({ name, type: "sentinel" })),
           ...sentinels.map((name) => ({ name, type: "sentinel" })),
         ];
         shuffleArray(gameData);
